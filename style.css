@@ -78,7 +78,7 @@ height:47px;
 }
 
 form .row select{
-font-size:14px;
+  font-size:14px;
   background:none;
   color:#767676;
 }
@@ -113,7 +113,7 @@ form button:hover{
 background:#363dc6;
 }
 
-@media (max width: 400px){
+@media (max-width: 400px){
   .wrapper{
     max-width:345px;
     width: 100%;
