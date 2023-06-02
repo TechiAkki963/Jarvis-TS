@@ -32,3 +32,27 @@ function textToSpeech(text) {
 speechBtn.addEventListener("click", function() {
   textToSpeech(textarea.value);
 });
+
+
+function startRecording() {
+  recorder = new MediaRecorder(stream);
+  chunks = [];
+
+  recorder.ondataavailable = function(e) {
+    chunks.push(e.data);
+  };
+
+  recorder.onstop = function() {
+    let blob = new Blob(chunks, { type: "audio/ogg; codecs=opus" });
+    let url = URL.createObjectURL(blob);
+    let audio = new Audio(url);
+    let downloadLink = document.createElement("a");
+    downloadLink.href = url;
+    downloadLink.download = "recorded_audio.ogg";
+    downloadLink.innerHTML = "Download";
+    document.body.appendChild(downloadLink);
+    audio.play();
+  };
+
+  recorder.start();
+}
