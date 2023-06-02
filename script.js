@@ -8,6 +8,8 @@ let synth = speechSynthesis,
 
 voices();
 
+
+
 function voices() {
   for (let voice of synth.getVoices()) {
     let selected = voice.name === "Google US English" ? "selected" : "";
@@ -42,6 +44,8 @@ function startRecording() {
     chunks.push(e.data);
   };
 
+
+  
   recorder.onstop = function() {
     let blob = new Blob(chunks, { type: "audio/ogg; codecs=opus" });
     let url = URL.createObjectURL(blob);
@@ -55,4 +59,19 @@ function startRecording() {
   };
 
   recorder.start();
+
+ 
+
+  async function startRecording() {
+    // ...
+    let mp4Blob = await new Promise(resolve => {
+      let ffmpeg = require('ffmpeg');
+      ffmpeg.input(url).output('recorded_audio.mp4').on('error', err => {
+          console.error(err);
+      }).on('end', () => {
+          resolve(mp4Blob);
+      });
+    });
+    // ...
+  }
 }
