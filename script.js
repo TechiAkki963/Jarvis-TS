@@ -1,14 +1,13 @@
 "use strict";
-const textarea = document.querySelector("textarea"),
-  voiceList = document.querySelector("Select"),
-  speechBtn = document.querySelector("button");
 
-let synth = speechSynthesis,
-  isSpeaking = true;
+const textarea = document.querySelector("textarea");
+const voiceList = document.querySelector("select");
+const speechBtn = document.querySelector("button");
+
+let synth = speechSynthesis;
+let isSpeaking = true;
 
 voices();
-
-
 
 function voices() {
   for (let voice of synth.getVoices()) {
@@ -19,7 +18,7 @@ function voices() {
   }
 }
 
-synth.addEventListener("voicechanged", voices);
+synth.addEventListener("voiceschanged", voices);
 
 function textToSpeech(text) {
   let utterance = new SpeechSynthesisUtterance(text);
@@ -35,43 +34,36 @@ speechBtn.addEventListener("click", function() {
   textToSpeech(textarea.value);
 });
 
-
-function startRecording() {
-  recorder = new MediaRecorder(stream);
-  chunks = [];
+async function startRecording() {
+  let recorder = new MediaRecorder(stream);
+  let chunks = [];
 
   recorder.ondataavailable = function(e) {
     chunks.push(e.data);
   };
 
-
-  
-  recorder.onstop = function() {
+  recorder.onstop = async function() {
     let blob = new Blob(chunks, { type: "audio/ogg; codecs=opus" });
     let url = URL.createObjectURL(blob);
-    let audio = new Audio(url);
+    let mp4Blob = await convertOggToMp4(url);
+    let mp4Url = URL.createObjectURL(mp4Blob);
     let downloadLink = document.createElement("a");
-    downloadLink.href = url;
-    downloadLink.download = "recorded_audio.ogg";
+    downloadLink.href = mp4Url;
+    downloadLink.download = "recorded_audio.mp4";
     downloadLink.innerHTML = "Download";
     document.body.appendChild(downloadLink);
-    audio.play();
   };
-
-  recorder.start();
-
- 
-
-  async function startRecording() {
-    // ...
-    let mp4Blob = await new Promise(resolve => {
-      let ffmpeg = require('ffmpeg');
-      ffmpeg.input(url).output('recorded_audio.mp4').on('error', err => {
-          console.error(err);
-      }).on('end', () => {
-          resolve(mp4Blob);
+  
+  async function convertOggToMp4(url) {
+      let mp4Blob = await new Promise(resolve => {
+          let ffmpeg = require('ffmpeg');
+          ffmpeg.input(url).output('recorded_audio.mp4').on('error', err => {
+              console.error(err);
+          }).on('end', () => {
+              resolve(mp4Blob);
+          });
       });
-    });
-    // ...
+  
+      return mp4Blob;
   }
 }
